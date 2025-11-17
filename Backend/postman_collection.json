@@ -1,0 +1,230 @@
+{
+  "info": {
+    "name": "Manajemen SDM - Backend Collection",
+    "_postman_id": "manajemen-sdm-collection",
+    "description": "Collection for testing Admin and Tenaga Kependidikan endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@unand.ac.id\",\n  \"password\": \"Admin123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api","auth","login"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var json = pm.response.json();",
+              "if (json && json.token) {",
+              "  pm.environment.set('token', json.token);",
+              "  console.log('Token saved to environment variable token');",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Admin - Dashboard",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["api","admin","dashboard"] }
+      }
+    },
+
+    {
+      "name": "Admin - List Users",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users", "host": ["{{baseUrl}}"], "path": ["api","admin","users"] }
+      }
+    },
+
+    {
+      "name": "Admin - Create User",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Nama Test\",\n  \"email\": \"test1@unand.ac.id\",\n  \"password\": \"Test123!\",\n  \"role\": \"TENAGA\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/admin/users", "host": ["{{baseUrl}}"], "path": ["api","admin","users"] }
+      }
+    },
+
+    {
+      "name": "Admin - Get User by ID",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users/:id", "host": ["{{baseUrl}}"], "path": ["api","admin","users", ":id"] }
+      }
+    },
+
+    {
+      "name": "Admin - Update User",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Nama Test Updated\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/admin/users/:id", "host": ["{{baseUrl}}"], "path": ["api","admin","users", ":id"] }
+      }
+    },
+
+    {
+      "name": "Admin - Delete User",
+      "request": {
+        "method": "DELETE",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/users/:id", "host": ["{{baseUrl}}"], "path": ["api","admin","users", ":id"] }
+      }
+    },
+
+    {
+      "name": "User - Get Profile (me)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api","users","me"] }
+      }
+    },
+
+    {
+      "name": "User - Update Profile",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Nama Saya\",\n  \"email\": \"saya@unand.ac.id\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api","users","me"] }
+      }
+    },
+
+    {
+      "name": "User - Change Password",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"oldPassword\": \"Test123!\",\n  \"newPassword\": \"NewPass123!\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/users/change-password", "host": ["{{baseUrl}}"], "path": ["api","users","change-password"] }
+      }
+    },
+
+    {
+      "name": "Tasks - List (user)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/tasks", "host": ["{{baseUrl}}"], "path": ["api","tasks"] }
+      }
+    },
+
+    {
+      "name": "Tasks - Create",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Tugas Contoh\",\n  \"description\": \"Deskripsi tugas\",\n  \"assigneeId\": 2,\n  \"dueDate\": \"2025-12-01\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/tasks", "host": ["{{baseUrl}}"], "path": ["api","tasks"] }
+      }
+    },
+
+    {
+      "name": "Tasks - Update Status",
+      "request": {
+        "method": "PATCH",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"status\": \"DONE\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/tasks/:id/status", "host": ["{{baseUrl}}"], "path": ["api","tasks", ":id","status"] }
+      }
+    },
+
+    {
+      "name": "Reports - List",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/reports", "host": ["{{baseUrl}}"], "path": ["api","reports"] }
+      }
+    },
+
+    {
+      "name": "Reports - Create",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"date\": \"2025-11-17\",\n  \"content\": \"Laporan harian contoh\",\n  \"attachments\": [{ \"filename\": \"foto.jpg\", \"url\": \"https://example.com/foto.jpg\" }]\n}" },
+        "url": { "raw": "{{baseUrl}}/api/reports", "host": ["{{baseUrl}}"], "path": ["api","reports"] }
+      }
+    },
+
+    {
+      "name": "Attendance - Checkin (user)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/attendance/checkin", "host": ["{{baseUrl}}"], "path": ["api","attendance","checkin"] }
+      }
+    },
+
+    {
+      "name": "Attendance - Checkout (user)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"note\": \"Selesai tugas\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/attendance/checkout", "host": ["{{baseUrl}}"], "path": ["api","attendance","checkout"] }
+      }
+    },
+
+    {
+      "name": "Attendance - History",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/attendance/history?userId=:id&from=2025-11-01&to=2025-11-30", "host": ["{{baseUrl}}"], "path": ["api","attendance","history"], "query": [ { "key": "userId", "value": ":id" }, { "key": "from", "value": "2025-11-01" }, { "key": "to", "value": "2025-11-30" } ] }
+      }
+    },
+
+    {
+      "name": "Admin - Activity Logs",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/activity", "host": ["{{baseUrl}}"], "path": ["api","admin","activity"] }
+      }
+    },
+
+    {
+      "name": "Admin - Export Attendance (CSV)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/export/attendance?from=2025-11-01&to=2025-11-30", "host": ["{{baseUrl}}"], "path": ["api","admin","export","attendance"], "query": [ { "key": "from", "value": "2025-11-01" }, { "key": "to", "value": "2025-11-30" } ] }
+      }
+    }
+  ],
+  "event": [],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000" },
+    { "key": "token", "value": "" }
+  ]
+}

@@ -1,23 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const { auth, permit } = require('../middlewares/auth.middleware');
-const prisma = require('../prismaClient');
+const taskCtrl = require('../controllers/task.controller');
 
-// list tasks (authenticated)
-router.get('/', auth, async (req, res, next) => {
-	try {
-		const tasks = await prisma.task.findMany({ include: { assignee: true, createdBy: true } });
-		res.json(tasks);
-	} catch (err) { next(err); }
-});
+// list tasks (for authenticated user)
+router.get('/', auth, taskCtrl.listForUser);
 
 // create task (permit TENAGA or ADMIN)
-router.post('/', auth, permit('ADMIN', 'TENAGA'), async (req, res, next) => {
-	try {
-		const { title, description, assigneeId, dueDate } = req.body;
-		const task = await prisma.task.create({ data: { title, description, assigneeId: assigneeId || null, createdById: req.user.userId, dueDate: dueDate ? new Date(dueDate) : null } });
-		res.status(201).json(task);
-	} catch (err) { next(err); }
-});
+router.post('/', auth, permit('ADMIN', 'TENAGA'), taskCtrl.createTask);
+
+// update task status (user or admin)
+router.patch('/:id/status', auth, taskCtrl.updateStatus);
 
 module.exports = router;
