@@ -40,7 +40,6 @@
         }
       ]
     },
-
     {
       "name": "Admin - Dashboard",
       "request": {
@@ -170,8 +169,15 @@
       "name": "Reports - Create",
       "request": {
         "method": "POST",
-        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"date\": \"2025-11-17\",\n  \"content\": \"Laporan harian contoh\",\n  \"attachments\": [{ \"filename\": \"foto.jpg\", \"url\": \"https://example.com/foto.jpg\" }]\n}" },
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "date", "value": "2025-11-17", "type": "text" },
+            { "key": "content", "value": "Laporan harian contoh", "type": "text" },
+            { "key": "attachments", "type": "file", "src": ["/path/to/example-foto.jpg"] }
+          ]
+        },
         "url": { "raw": "{{baseUrl}}/api/reports", "host": ["{{baseUrl}}"], "path": ["api","reports"] }
       }
     },
@@ -219,6 +225,14 @@
         "method": "GET",
         "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
         "url": { "raw": "{{baseUrl}}/api/admin/export/attendance?from=2025-11-01&to=2025-11-30", "host": ["{{baseUrl}}"], "path": ["api","admin","export","attendance"], "query": [ { "key": "from", "value": "2025-11-01" }, { "key": "to", "value": "2025-11-30" } ] }
+      }
+    },
+    {
+      "name": "Admin - Export Attendance (XLSX)",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/admin/export/attendance?from=2025-11-01&to=2025-11-30&format=xlsx", "host": ["{{baseUrl}}"], "path": ["api","admin","export","attendance"], "query": [ { "key": "from", "value": "2025-11-01" }, { "key": "to", "value": "2025-11-30" }, { "key": "format", "value": "xlsx" } ] }
       }
     }
   ],

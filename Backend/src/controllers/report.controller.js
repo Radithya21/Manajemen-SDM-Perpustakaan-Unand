@@ -1,19 +1,26 @@
 const prisma = require('../prismaClient');
 const { logActivity } = require('../services/activity.service');
+const path = require('path');
 
 const createReport = async (req, res, next) => {
   try {
     const userId = req.user.userId;
-    const { date, content, attachments } = req.body; // attachments: [{ filename, url }]
+    const { date, content } = req.body; // attachments can come as files
     const d = date ? new Date(date) : new Date();
     const report = await prisma.dailyReport.create({ data: { userId, date: d, content: content || '' } });
-    if (Array.isArray(attachments) && attachments.length) {
-      for (const a of attachments) {
-        await prisma.attachment.create({ data: { filename: a.filename, url: a.url, reportId: report.id } });
+
+    // Handle uploaded files from multer (req.files)
+    if (req.files && req.files.length) {
+      for (const f of req.files) {
+        const fileUrl = `/uploads/${f.filename}`; // served statically
+        await prisma.attachment.create({ data: { filename: f.originalname, url: fileUrl, reportId: report.id } });
       }
     }
+
     logActivity(userId, 'REPORT_CREATE', { reportId: report.id }).catch?.(() => {});
-    res.status(201).json(report);
+    // return created report with attachments
+    const created = await prisma.dailyReport.findUnique({ where: { id: report.id }, include: { attachments: true } });
+    res.status(201).json(created);
   } catch (err) { next(err); }
 };
 

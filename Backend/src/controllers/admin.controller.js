@@ -119,17 +119,40 @@ const listActivity = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-// Exports: attendance CSV (simple)
+// Exports: attendance CSV (simple) and XLSX support
 const exportAttendance = async (req, res, next) => {
   try {
-    const { from, to } = req.query;
+    const { from, to, format } = req.query;
     const where = {};
     if (from || to) where.date = {};
     if (from) where.date.gte = new Date(from);
     if (to) where.date.lte = new Date(to);
     const rows = await prisma.attendance.findMany({ where, include: { user: true }, orderBy: { date: 'asc' } });
 
-    // Build CSV
+    if (format && format.toLowerCase() === 'xlsx') {
+      const ExcelJS = require('exceljs');
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet('Attendance');
+      sheet.columns = [
+        { header: 'userId', key: 'userId', width: 10 },
+        { header: 'name', key: 'name', width: 30 },
+        { header: 'email', key: 'email', width: 30 },
+        { header: 'date', key: 'date', width: 25 },
+        { header: 'checkIn', key: 'checkIn', width: 25 },
+        { header: 'checkOut', key: 'checkOut', width: 25 },
+        { header: 'note', key: 'note', width: 40 },
+      ];
+      for (const r of rows) {
+        sheet.addRow({ userId: r.userId, name: r.user?.name || '', email: r.user?.email || '', date: r.date.toISOString(), checkIn: r.checkIn?.toISOString() || '', checkOut: r.checkOut?.toISOString() || '', note: r.note || '' });
+      }
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename=attendance_${from||'start'}_${to||'end'}.xlsx`);
+      await workbook.xlsx.write(res);
+      res.end();
+      return;
+    }
+
+    // default CSV
     const header = ['userId', 'name', 'email', 'date', 'checkIn', 'checkOut', 'note'];
     const lines = [header.join(',')];
     for (const r of rows) {
